@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="AI Agent API 사용량과 입력한 요금으로 월간 비용을 계산하는 무료 도구입니다.">
+<title>AI Agent 운영비 계산기</title>
+<style>
+*{box-sizing:border-box}body{font:16px/1.6 system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;color:#172033;background:#f4f6fb}main{background:white;border:1px solid #dce1eb;border-radius:16px;padding:1.5rem}h1{font-size:1.7rem}.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}label{display:block;font-size:.92rem;font-weight:650}input{width:100%;padding:.7rem;border:1px solid #aeb8c8;border-radius:8px;margin-top:.35rem;font:inherit}button{margin-top:1.2rem;padding:.75rem 1rem;background:#2447a5;color:white;border:0;border-radius:8px;font:inherit;font-weight:700;cursor:pointer}output{display:block;margin-top:1.2rem;padding:1rem;background:#eef3ff;border-radius:8px;font-size:1.2rem;font-weight:700}.note{font-size:.84rem;color:#596579}@media(max-width:560px){.grid{grid-template-columns:1fr}}
+</style>
+<main>
+<h1>AI Agent 운영비 계산기</h1>
+<p>월간 입력·출력 토큰 사용량과 직접 확인한 요금을 입력해 예상 API 비용을 계산합니다. 요금은 자동으로 가져오지 않으므로 각 제공자의 공식 가격표를 확인해 입력하세요.</p>
+<div class="grid">
+<label>월간 입력 토큰 수<input id="inputTokens" type="number" min="0" step="1000" placeholder="예: 1000000"></label>
+<label>월간 출력 토큰 수<input id="outputTokens" type="number" min="0" step="1000" placeholder="예: 200000"></label>
+<label>입력 요금 (통화 단위 / 1M 토큰)<input id="inputRate" type="number" min="0" step="0.0001" placeholder="공식 가격표에서 입력"></label>
+<label>출력 요금 (통화 단위 / 1M 토큰)<input id="outputRate" type="number" min="0" step="0.0001" placeholder="공식 가격표에서 입력"></label>
+</div>
+<button id="calculate" type="button">예상 비용 계산</button>
+<output id="result" aria-live="polite">값을 입력한 뒤 계산하세요.</output>
+<p class="note">결과는 입력한 요금과 사용량을 바탕으로 한 계산값이며 실제 청구액이나 사업 수익을 뜻하지 않습니다. 세금, 할인, 캐시, 기타 수수료는 포함하지 않습니다. 입력값은 브라우저 안에서만 계산하며 저장하거나 전송하지 않습니다.</p>
+</main>
+<script>(()=>{const ids=['inputTokens','outputTokens','inputRate','outputRate'];const fmt=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:4});function calculate(){const v=ids.map(id=>document.getElementById(id).value);if(v.some(x=>x==='')){document.getElementById('result').textContent='모든 사용량과 요금을 입력하세요.';return}const n=v.map(Number);if(n.some(x=>!Number.isFinite(x)||x<0)){document.getElementById('result').textContent='0 이상의 숫자를 입력하세요.';return}const amount=(n[0]*n[2]+n[1]*n[3])/1000000;document.getElementById('result').textContent='입력 요금 기준 예상 월간 비용: '+fmt.format(amount)+' (입력한 통화 단위)'}document.getElementById('calculate').addEventListener('click',calculate)})();</script>
+</html>
+
