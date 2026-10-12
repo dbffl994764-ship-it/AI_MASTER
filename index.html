@@ -1,25 +1,314 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
+<head>
 <meta charset="utf-8">
+<meta name="ai-master-trial" content="ai-master-trial-b698b6ce-068a-4dab-90e9-2926d953f34c">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="AI Agent API 사용량과 입력한 요금으로 월간 비용을 계산하는 무료 도구입니다.">
-<title>AI Agent 운영비 계산기</title>
+<title>Agent Meter — AI agent running cost calculator</title>
+<meta name="description" content="Estimate what your AI agent costs per run, per day and per month across GPT, Claude and Gemini models. Free, runs in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Azeret+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}body{font:16px/1.6 system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;color:#172033;background:#f4f6fb}main{background:white;border:1px solid #dce1eb;border-radius:16px;padding:1.5rem}h1{font-size:1.7rem}.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}label{display:block;font-size:.92rem;font-weight:650}input{width:100%;padding:.7rem;border:1px solid #aeb8c8;border-radius:8px;margin-top:.35rem;font:inherit}button{margin-top:1.2rem;padding:.75rem 1rem;background:#2447a5;color:white;border:0;border-radius:8px;font:inherit;font-weight:700;cursor:pointer}output{display:block;margin-top:1.2rem;padding:1rem;background:#eef3ff;border-radius:8px;font-size:1.2rem;font-weight:700}.note{font-size:.84rem;color:#596579}@media(max-width:560px){.grid{grid-template-columns:1fr}}
-</style>
-<main>
-<h1>AI Agent 운영비 계산기</h1>
-<p>월간 입력·출력 토큰 사용량과 직접 확인한 요금을 입력해 예상 API 비용을 계산합니다. 요금은 자동으로 가져오지 않으므로 각 제공자의 공식 가격표를 확인해 입력하세요.</p>
-<div class="grid">
-<label>월간 입력 토큰 수<input id="inputTokens" type="number" min="0" step="1000" placeholder="예: 1000000"></label>
-<label>월간 출력 토큰 수<input id="outputTokens" type="number" min="0" step="1000" placeholder="예: 200000"></label>
-<label>입력 요금 (통화 단위 / 1M 토큰)<input id="inputRate" type="number" min="0" step="0.0001" placeholder="공식 가격표에서 입력"></label>
-<label>출력 요금 (통화 단위 / 1M 토큰)<input id="outputRate" type="number" min="0" step="0.0001" placeholder="공식 가격표에서 입력"></label>
-</div>
-<button id="calculate" type="button">예상 비용 계산</button>
-<output id="result" aria-live="polite">값을 입력한 뒤 계산하세요.</output>
-<p class="note">결과는 입력한 요금과 사용량을 바탕으로 한 계산값이며 실제 청구액이나 사업 수익을 뜻하지 않습니다. 세금, 할인, 캐시, 기타 수수료는 포함하지 않습니다. 입력값은 브라우저 안에서만 계산하며 저장하거나 전송하지 않습니다.</p>
-</main>
-<script>(()=>{const ids=['inputTokens','outputTokens','inputRate','outputRate'];const fmt=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:4});function calculate(){const v=ids.map(id=>document.getElementById(id).value);if(v.some(x=>x==='')){document.getElementById('result').textContent='모든 사용량과 요금을 입력하세요.';return}const n=v.map(Number);if(n.some(x=>!Number.isFinite(x)||x<0)){document.getElementById('result').textContent='0 이상의 숫자를 입력하세요.';return}const amount=(n[0]*n[2]+n[1]*n[3])/1000000;document.getElementById('result').textContent='입력 요금 기준 예상 월간 비용: '+fmt.format(amount)+' (입력한 통화 단위)'}document.getElementById('calculate').addEventListener('click',calculate)})();</script>
-</html>
+:root{
+  --paper:#E8EDF1; --ink:#17202B; --soft:#56626F; --rule:#C2CCD5;
+  --glass:#0F2A2B; --lcd:#5FE3C2; --lcd-dim:#2F6F62; --amber:#D98E0B; --white:#FBFCFD;
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --digits:"Azeret Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--paper)}
+body{margin:0;color:var(--ink);font:400 17px/1.55 var(--display);font-optical-sizing:auto}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.brand svg{width:26px;height:26px}
+.lang{display:flex;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden}
+.lang button{all:unset;cursor:pointer;padding:4px 12px;font-size:14px;font-weight:600}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--white)}
+.hero h1{font-weight:800;font-size:clamp(40px,6.4vw,78px);line-height:.98;letter-spacing:-.035em;margin:28px 0 14px;max-width:13ch}
+.hero p{font-size:19px;color:var(--soft);max-width:56ch;margin:0 0 36px}
 
+.tool{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:40px;align-items:start}
+.inputs{display:grid;gap:26px}
+fieldset{border:0;padding:0;margin:0}
+legend{font-weight:700;font-size:15px;margin-bottom:10px}
+.model{width:100%;font:600 17px var(--display);padding:12px 14px;border:1.5px solid var(--ink);border-radius:10px;background:var(--white);color:var(--ink)}
+.price-note{font-size:13.5px;color:var(--soft);margin-top:8px}
+.row{display:grid;grid-template-columns:1fr 132px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.row:first-of-type{border-top:1px solid var(--rule)}
+.row label{font-weight:600}
+.row small{display:block;font-weight:400;color:var(--soft);font-size:13.5px;line-height:1.35}
+.row input[type=number]{width:100%;font:700 18px var(--digits);text-align:right;padding:9px 10px;border:1.5px solid var(--rule);border-radius:8px;background:var(--white);color:var(--ink)}
+.row input[type=number]:focus{border-color:var(--ink)}
+.custom{display:none;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.custom.on{display:grid}
+.custom label{font-size:13px;font-weight:600}
+.custom input{width:100%;font:700 15px var(--digits);padding:8px;border:1.5px solid var(--rule);border-radius:8px;background:var(--white)}
+
+/* the meter: the one loud element */
+.meter{position:sticky;top:20px;background:var(--glass);color:#CFE9E2;border-radius:22px;padding:22px 22px 18px;box-shadow:inset 0 0 0 6px #0A1E1F,inset 0 0 0 7px #2A4A49}
+.meter .face{background:#081718;border-radius:12px;padding:18px 16px 14px;box-shadow:inset 0 2px 14px #000}
+.meter .cap{font-size:13.5px;color:var(--lcd-dim);display:flex;justify-content:space-between}
+.readout{font:700 clamp(38px,5vw,54px)/1.05 var(--digits);color:var(--lcd);letter-spacing:-.02em;text-shadow:0 0 18px rgba(95,227,194,.35);margin:8px 0 2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.readout .cur{opacity:.6;margin-right:.08em}
+.readout .cents{font-size:.55em;opacity:.75}
+.ticks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.tick{background:#0A1E1F;border-radius:10px;padding:10px}
+.tick b{display:block;font:700 17px var(--digits);color:#E5F6F1;font-variant-numeric:tabular-nums}
+.tick span{font-size:12.5px;color:#7FA79D}
+.split{margin-top:16px}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:#0A1E1F}
+.bar i{display:block;height:100%;transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;margin-top:8px;color:#A9C7C0}
+.legend em{font-style:normal;display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
+.insight{margin-top:14px;font-size:14.5px;line-height:1.45;color:#E5F6F1;border-left:3px solid var(--amber);padding-left:10px}
+
+.compare{margin:84px 0 0}
+.compare h2,.playbook h2{font-weight:800;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.025em;line-height:1.05;margin:0 0 8px}
+.compare p.lead{color:var(--soft);margin:0 0 22px;max-width:60ch}
+.cmp{display:grid;gap:6px}
+.cmp button{all:unset;cursor:pointer;display:grid;grid-template-columns:190px 1fr 120px;gap:14px;align-items:center;padding:7px 8px;border-radius:8px}
+.cmp button:hover{background:#DCE3E9}
+.cmp button[aria-current="true"]{background:var(--ink);color:var(--white)}
+.cmp .nm{font-weight:600;font-size:15px}
+.cmp .vendor{display:block;font-weight:400;font-size:12.5px;opacity:.65}
+.cmp .track{display:block;height:14px;background:#D3DBE2;border-radius:4px;overflow:hidden}
+.cmp button[aria-current="true"] .track{background:#33404F}
+.cmp .fill{display:block;height:100%;background:var(--ink);border-radius:4px;transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.cmp button[aria-current="true"] .fill{background:var(--lcd)}
+.cmp .amt{font:700 15px var(--digits);text-align:right;font-variant-numeric:tabular-nums}
+
+.playbook{margin:96px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;border-top:2px solid var(--ink);padding-top:36px}
+.playbook ul{margin:0;padding:0;list-style:none}
+.playbook li{padding:11px 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:28px 1fr}
+.playbook li::before{content:"";width:12px;height:12px;border:2px solid var(--ink);border-radius:50%;margin-top:7px}
+.buy{display:inline-flex;align-items:center;gap:12px;margin-top:22px;background:var(--ink);color:var(--white);text-decoration:none;font-weight:700;padding:14px 22px;border-radius:12px}
+.buy .price{font-family:var(--digits);color:var(--lcd)}
+.soon{margin-top:22px;font-size:15px;color:var(--soft)}
+footer{margin:96px 0 40px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--soft);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+footer nav a{margin-left:14px}
+
+@media (max-width:900px){
+  .tool{grid-template-columns:1fr}
+  .meter{position:static;order:-1}
+  .playbook{grid-template-columns:1fr;gap:20px}
+  .cmp button{grid-template-columns:130px 1fr 92px}
+}
+@media (max-width:480px){.wrap{padding:0 16px}.row{grid-template-columns:1fr 112px}.ticks{grid-template-columns:1fr 1fr 1fr}.tick b{font-size:14px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#17202B" stroke-width="2"/><path d="M13 13 L19 7" stroke="#17202B" stroke-width="2.4" stroke-linecap="round"/><circle cx="13" cy="13" r="2.2" fill="#17202B"/></svg>Agent Meter</div>
+  <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="ko" aria-pressed="false">한국어</button></div>
+</header>
+
+<section class="hero">
+  <h1 data-t="h1">What will your agent cost to run?</h1>
+  <p data-t="sub">Describe one agent run. The meter shows what it costs per run, per day and per month, on today's list prices.</p>
+</section>
+
+<section class="tool" aria-label="Calculator">
+  <div class="inputs">
+    <fieldset>
+      <legend data-t="lModel">Model</legend>
+      <select id="model" class="model" aria-label="Model"></select>
+      <div id="custom" class="custom">
+        <label><span data-t="cIn">Input $/1M</span><input id="cin" type="number" min="0" step="0.01" value="1"></label>
+        <label><span data-t="cCache">Cached $/1M</span><input id="ccache" type="number" min="0" step="0.01" value="0.1"></label>
+        <label><span data-t="cOut">Output $/1M</span><input id="cout" type="number" min="0" step="0.01" value="5"></label>
+      </div>
+      <div class="price-note" id="pnote"></div>
+    </fieldset>
+    <fieldset>
+      <legend data-t="lWork">One agent run</legend>
+      <div class="row"><label for="runs"><span data-t="runs">Runs per day</span><small data-t="runsH">How many times the agent is started each day</small></label><input id="runs" type="number" min="0" step="10" value="200"></div>
+      <div class="row"><label for="steps"><span data-t="steps">Steps per run</span><small data-t="stepsH">Model calls in one run: plan, tool calls, final answer</small></label><input id="steps" type="number" min="1" step="1" value="6"></div>
+      <div class="row"><label for="tin"><span data-t="tin">Input tokens per step</span><small data-t="tinH">Prompt, tools, history and retrieved context</small></label><input id="tin" type="number" min="0" step="500" value="4000"></div>
+      <div class="row"><label for="tout"><span data-t="tout">Output tokens per step</span><small data-t="toutH">What the model writes, including reasoning</small></label><input id="tout" type="number" min="0" step="50" value="500"></div>
+      <div class="row"><label for="cache"><span data-t="cache">Cached input (%)</span><small data-t="cacheH">Share of input served from the prompt cache</small></label><input id="cache" type="number" min="0" max="100" step="5" value="40"></div>
+    </fieldset>
+  </div>
+
+  <aside class="meter" aria-live="polite">
+    <div class="face">
+      <div class="cap"><span data-t="perMonth">per month</span><span id="mname"></span></div>
+      <div class="readout" id="readout">$0</div>
+      <div class="ticks">
+        <div class="tick"><b id="pRun">$0</b><span data-t="perRun">per run</span></div>
+        <div class="tick"><b id="pDay">$0</b><span data-t="perDay">per day</span></div>
+        <div class="tick"><b id="pYear">$0</b><span data-t="perYear">per year</span></div>
+      </div>
+    </div>
+    <div class="split">
+      <div class="bar"><i id="bIn" style="background:#5FE3C2"></i><i id="bCache" style="background:#2F6F62"></i><i id="bOut" style="background:#D98E0B"></i></div>
+      <div class="legend"><span><em style="background:#5FE3C2"></em><span data-t="kIn">Input</span> <b id="vIn"></b></span><span><em style="background:#2F6F62"></em><span data-t="kCache">Cached</span> <b id="vCache"></b></span><span><em style="background:#D98E0B"></em><span data-t="kOut">Output</span> <b id="vOut"></b></span></div>
+    </div>
+    <p class="insight" id="insight"></p>
+  </aside>
+</section>
+
+<section class="compare" aria-labelledby="cmpH">
+  <h2 id="cmpH" data-t="cmpH">Same agent, every model</h2>
+  <p class="lead" data-t="cmpP">Your workload priced on each model. Select one to load it into the meter.</p>
+  <div class="cmp" id="cmp"></div>
+</section>
+
+<section class="playbook" aria-labelledby="pbH">
+  <div>
+    <h2 id="pbH" data-t="pbH">Cut the bill without cutting the agent</h2>
+    <p data-t="pbP">The Agent Cost Playbook is a 14-page PDF with the tactics teams use to bring agent spend down, each with the numbers to check it against your own meter.</p>
+    <a class="buy" id="buy" href="#" hidden><span data-t="buy">Get the playbook</span><span class="price">$9</span></a>
+    <p class="soon" id="soon" data-t="soon">The playbook is being finished. It will be available here soon.</p>
+  </div>
+  <ul>
+    <li data-t="pb1">Model routing: which steps can drop to a cheaper model, and how to test it</li>
+    <li data-t="pb2">Prompt caching setups that reach 60–80% cached input</li>
+    <li data-t="pb3">Trimming history and tool schemas that silently grow every step</li>
+    <li data-t="pb4">Capping output and reasoning tokens without losing quality</li>
+    <li data-t="pb5">A monthly budget sheet with alert thresholds</li>
+  </ul>
+</section>
+
+<footer>
+  <span id="asof"></span>
+  <nav aria-label="Policies"><a href="refund.html" data-t="fRefund">Refunds</a><a href="privacy.html" data-t="fPrivacy">Privacy</a><a href="terms.html" data-t="fTerms">Terms</a></nav>
+</footer>
+</div>
+
+<script>
+(()=>{
+// Paste the Lemon Squeezy checkout URL here when the product is published.
+const PAYMENT_LINK = "https://aimasterlab.lemonsqueezy.com/checkout/buy/733e58b2-212a-405e-b60a-eed4bdb1a8e3";
+const PRICES_AS_OF = "2026-10-12";
+// USD per 1M tokens. cache = cached-input price; null when not listed.
+const MODELS = [
+  {id:"gpt-5.6-sol",   name:"GPT-5.6 Sol",        vendor:"OpenAI",    in:5,    cache:0.5,  out:30},
+  {id:"gpt-5.6-terra", name:"GPT-5.6 Terra",      vendor:"OpenAI",    in:2,    cache:0.2,  out:12},
+  {id:"gpt-5.6-luna",  name:"GPT-5.6 Luna",       vendor:"OpenAI",    in:0.2,  cache:0.02, out:1.2},
+  {id:"claude-opus-5.5",  name:"Claude Opus 5.5",   vendor:"Anthropic", in:4,  cache:0.2,  out:20},
+  {id:"claude-sonnet-5.5",name:"Claude Sonnet 5.5", vendor:"Anthropic", in:2,  cache:0.1,  out:10},
+  {id:"claude-haiku-5.5", name:"Claude Haiku 5.5",  vendor:"Anthropic", in:0.1,cache:0.01, out:0.5, note:"prompts up to 100K tokens"},
+  {id:"gemini-3.1-pro",   name:"Gemini 3.1 Pro",    vendor:"Google",    in:2,  cache:null, out:12, note:"preview, prompts up to 200K"},
+  {id:"gemini-3.8-flash", name:"Gemini 3.8 Flash",  vendor:"Google",    in:0.75,cache:null,out:3.75, note:"price valid until 2026-12-31"},
+  {id:"gemini-3.1-flash-lite",name:"Gemini 3.1 Flash-Lite",vendor:"Google",in:0.25,cache:null,out:1.5},
+];
+const T = {
+ en:{h1:"What will your agent cost to run?",sub:"Describe one agent run. The meter shows what it costs per run, per day and per month, on today's list prices.",
+  lModel:"Model",cIn:"Input $/1M",cCache:"Cached $/1M",cOut:"Output $/1M",lWork:"One agent run",
+  runs:"Runs per day",runsH:"How many times the agent is started each day",steps:"Steps per run",stepsH:"Model calls in one run: plan, tool calls, final answer",
+  tin:"Input tokens per step",tinH:"Prompt, tools, history and retrieved context",tout:"Output tokens per step",toutH:"What the model writes, including reasoning",
+  cache:"Cached input (%)",cacheH:"Share of input served from the prompt cache",perMonth:"per month",perRun:"per run",perDay:"per day",perYear:"per year",
+  kIn:"Input",kCache:"Cached",kOut:"Output",cmpH:"Same agent, every model",cmpP:"Your workload priced on each model. Select one to load it into the meter.",
+  pbH:"Cut the bill without cutting the agent",pbP:"The Agent Cost Playbook is a 14-page PDF with the tactics teams use to bring agent spend down, each with the numbers to check it against your own meter.",
+  buy:"Get the playbook",soon:"The playbook is being finished. It will be available here soon.",
+  pb1:"Model routing: which steps can drop to a cheaper model, and how to test it",pb2:"Prompt caching setups that reach 60–80% cached input",pb3:"Trimming history and tool schemas that silently grow every step",pb4:"Capping output and reasoning tokens without losing quality",pb5:"A monthly budget sheet with alert thresholds",
+  fRefund:"Refunds",fPrivacy:"Privacy",fTerms:"Terms",custom:"Custom prices",
+  asof:d=>`List prices as of ${d}, USD, standard tier, before tax. Check the provider's price page before you budget. Nothing you enter leaves your browser.`,
+  noCache:"This provider's cached-input price isn't listed here, so cached input is billed at the full input price.",
+  outHeavy:p=>`Output is ${p}% of the bill. Capping output or reasoning length is the fastest saving.`,
+  inHeavy:p=>`Uncached input is ${p}% of the bill. Raising the cache share or trimming context saves the most.`,
+  cheaper:(n,x)=>`${n} would run this workload for ${x} less per month.`,
+  cheapest:"This is the cheapest model listed for this workload."},
+ ko:{h1:"내 에이전트, 한 달에 얼마 들까?",sub:"에이전트 한 번 실행을 설명하면, 오늘 공식 가격 기준으로 1회·하루·한 달 비용을 계량기에 보여 드려요.",
+  lModel:"모델",cIn:"입력 $/1M",cCache:"캐시 $/1M",cOut:"출력 $/1M",lWork:"에이전트 1회 실행",
+  runs:"하루 실행 횟수",runsH:"하루에 에이전트를 몇 번 실행하나요",steps:"1회당 단계 수",stepsH:"한 번 실행할 때 모델 호출 수(계획, 도구 호출, 최종 답변)",
+  tin:"단계당 입력 토큰",tinH:"프롬프트, 도구 설명, 대화 기록, 검색 결과",tout:"단계당 출력 토큰",toutH:"모델이 쓰는 글(추론 포함)",
+  cache:"캐시된 입력 (%)",cacheH:"입력 중 프롬프트 캐시로 처리되는 비율",perMonth:"한 달",perRun:"1회",perDay:"하루",perYear:"1년",
+  kIn:"입력",kCache:"캐시",kOut:"출력",cmpH:"같은 에이전트, 모든 모델",cmpP:"지금 작업량을 모델별로 계산했어요. 누르면 계량기에 그 모델이 들어가요.",
+  pbH:"에이전트는 그대로, 비용만 줄이기",pbP:"Agent Cost Playbook은 에이전트 비용을 줄이는 방법을 정리한 14쪽 PDF예요. 방법마다 내 계량기로 바로 확인할 수 있는 숫자가 들어 있어요.",
+  buy:"플레이북 받기",soon:"플레이북을 마무리하고 있어요. 곧 여기서 받을 수 있어요.",
+  pb1:"모델 라우팅: 어떤 단계를 싼 모델로 내려도 되는지, 시험하는 방법",pb2:"캐시 입력 비율을 60–80%까지 올리는 설정",pb3:"단계마다 몰래 커지는 대화 기록·도구 설명 줄이기",pb4:"품질을 지키면서 출력·추론 토큰 상한 걸기",pb5:"경고 기준이 들어간 월 예산표",
+  fRefund:"환불",fPrivacy:"개인정보",fTerms:"이용약관",custom:"직접 입력",
+  asof:d=>`${d} 기준 공식 가격(USD, 기본 요금, 세금 제외)이에요. 예산을 잡기 전에 각 회사 가격표를 확인하세요. 입력값은 브라우저 밖으로 나가지 않아요.`,
+  noCache:"이 회사의 캐시 입력 가격은 여기 넣지 않아서, 캐시 입력도 일반 입력 가격으로 계산했어요.",
+  outHeavy:p=>`출력이 비용의 ${p}%예요. 출력·추론 길이에 상한을 거는 게 가장 빨리 줄이는 방법이에요.`,
+  inHeavy:p=>`캐시 안 된 입력이 비용의 ${p}%예요. 캐시 비율을 올리거나 컨텍스트를 줄이면 가장 많이 아껴요.`,
+  cheaper:(n,x)=>`${n}로 바꾸면 이 작업량에서 한 달에 ${x} 덜 들어요.`,
+  cheapest:"이 작업량에서는 목록 중 가장 싼 모델이에요."}
+};
+let lang = (navigator.language||"").startsWith("ko") ? "ko" : "en";
+try{const s=localStorage.getItem("am-lang"); if(s==="en"||s==="ko") lang=s;}catch(e){}
+const $=id=>document.getElementById(id);
+const sel=$("model");
+function money(v,big){
+  const d = v>=100||big ? 0 : v>=1 ? 2 : v>=0.01 ? 3 : 4;
+  return "$"+v.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+function num(id,def){const v=parseFloat($(id).value);return Number.isFinite(v)&&v>=0?v:def}
+function workload(){return{runs:num("runs",0),steps:Math.max(1,num("steps",1)),tin:num("tin",0),tout:num("tout",0),cache:Math.min(100,num("cache",0))/100}}
+function price(m,w){
+  const runsM=w.runs*30, inTok=runsM*w.steps*w.tin, outTok=runsM*w.steps*w.tout;
+  const cacheRate = m.cache==null ? m.in : m.cache;
+  const cIn = inTok*(1-w.cache)*m.in/1e6, cCache = inTok*w.cache*cacheRate/1e6, cOut = outTok*m.out/1e6;
+  const total=cIn+cCache+cOut;
+  return {cIn,cCache,cOut,total,run: runsM? total/runsM : 0};
+}
+function current(){
+  if(sel.value==="custom") return {id:"custom",name:T[lang].custom,vendor:"",in:num("cin",0),cache:num("ccache",0),out:num("cout",0)};
+  return MODELS.find(m=>m.id===sel.value);
+}
+let shown=0, raf=0;
+function roll(to){
+  cancelAnimationFrame(raf);
+  const from=shown, t0=performance.now(), dur=matchMedia("(prefers-reduced-motion: reduce)").matches?0:520;
+  const step=t=>{const k=dur?Math.min(1,(t-t0)/dur):1, e=1-Math.pow(1-k,3), v=from+(to-from)*e; shown=v; paint(v); if(k<1) raf=requestAnimationFrame(step)};
+  raf=requestAnimationFrame(step);
+}
+function paint(v){
+  const whole=Math.floor(v), cents=Math.round((v-whole)*100);
+  $("readout").innerHTML = v>=1000
+    ? `<span class="cur">$</span>${whole.toLocaleString("en-US")}`
+    : `<span class="cur">$</span>${whole.toLocaleString("en-US")}<span class="cents">.${String(cents).padStart(2,"0")}</span>`;
+}
+function update(){
+  const t=T[lang], w=workload(), m=current(), p=price(m,w);
+  $("custom").classList.toggle("on", sel.value==="custom");
+  $("mname").textContent = m.name;
+  roll(p.total);
+  $("pRun").textContent=money(p.run); $("pDay").textContent=money(p.total/30); $("pYear").textContent=money(p.total*12,true);
+  const sum=p.total||1;
+  [["bIn",p.cIn],["bCache",p.cCache],["bOut",p.cOut]].forEach(([id,v])=>$(id).style.width=(v/sum*100)+"%");
+  $("vIn").textContent=money(p.cIn,p.cIn>=100); $("vCache").textContent=money(p.cCache,p.cCache>=100); $("vOut").textContent=money(p.cOut,p.cOut>=100);
+  $("pnote").textContent = sel.value==="custom" ? "" :
+    `$${m.in} in · ${m.cache==null?"—":"$"+m.cache} cached · $${m.out} out per 1M${m.note?" ("+m.note+")":""}${m.cache==null&&w.cache>0?" — "+t.noCache:""}`;
+  // one plain-language insight
+  const rows=MODELS.map(x=>({m:x,p:price(x,w)})).sort((a,b)=>a.p.total-b.p.total);
+  let msg="";
+  if(p.total>0){
+    const outShare=Math.round(p.cOut/p.total*100), inShare=Math.round(p.cIn/p.total*100);
+    msg = outShare>=55 ? t.outHeavy(outShare) : inShare>=55 ? t.inHeavy(inShare) : "";
+    const best=rows[0];
+    if(sel.value!=="custom" && best.m.id===m.id) msg += (msg?" ":"")+t.cheapest;
+    else if(best.p.total < p.total*0.8) msg += (msg?" ":"")+t.cheaper(best.m.name, money(p.total-best.p.total, true));
+  }
+  $("insight").textContent=msg; $("insight").hidden=!msg;
+  // comparison
+  const max=Math.max(...rows.map(r=>r.p.total),1e-9);
+  $("cmp").innerHTML = rows.map(r=>`<button type="button" data-id="${r.m.id}" aria-current="${r.m.id===sel.value}"><span class="nm">${r.m.name}<span class="vendor">${r.m.vendor}</span></span><span class="track"><span class="fill" style="width:${Math.max(.6,r.p.total/max*100)}%"></span></span><span class="amt">${money(r.p.total,r.p.total>=100)}</span></button>`).join("");
+}
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-t]").forEach(el=>{const v=T[lang][el.dataset.t]; if(typeof v==="string") el.textContent=v;});
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.lang===lang)));
+  $("asof").textContent=T[lang].asof(PRICES_AS_OF);
+  const cur=sel.value;
+  sel.innerHTML = ["OpenAI","Anthropic","Google"].map(v=>`<optgroup label="${v}">`+MODELS.filter(m=>m.vendor===v).map(m=>`<option value="${m.id}">${m.name}</option>`).join("")+`</optgroup>`).join("")+`<option value="custom">${T[lang].custom}</option>`;
+  sel.value = cur || "claude-sonnet-5.5";
+  update();
+}
+document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>{lang=b.dataset.lang;try{localStorage.setItem("am-lang",lang)}catch(e){}applyLang()}));
+document.querySelectorAll("input,select").forEach(el=>el.addEventListener("input",update));
+$("cmp").addEventListener("click",e=>{const b=e.target.closest("button[data-id]"); if(b){sel.value=b.dataset.id; update(); if(innerWidth<900) document.querySelector(".meter").scrollIntoView({behavior:"smooth",block:"start"});}});
+if(PAYMENT_LINK){ $("buy").href=PAYMENT_LINK; $("buy").hidden=false; $("soon").hidden=true; }
+sel.value="claude-sonnet-5.5";
+applyLang();
+})();
+</script>
+</body>
+</html>
