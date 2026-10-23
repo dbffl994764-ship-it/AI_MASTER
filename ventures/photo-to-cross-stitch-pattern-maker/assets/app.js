@@ -1,0 +1,20 @@
+(() => {
+  'use strict';
+  const $ = (selector) => document.querySelector(selector);
+  const colorRange = $('#colorRange'); const colorValue = $('#colorValue');
+  const fabricCount = $('#fabricCount'); const widthInput = $('#widthInput'); const heightInput = $('#heightInput');
+  const gridValue = $('#gridValue'); const sizeNote = $('#sizeNote'); const photoInput = $('#photoInput'); const fileName = $('#fileName');
+  const photoPreview = $('#photoPreview'); const patternCanvas = $('#patternCanvas'); const ctx = patternCanvas.getContext('2d');
+  let imageUrl = null;
+  function updateSize() { const count = Number(fabricCount.value); const width = Math.max(1, Number(widthInput.value) || 1); const height = Math.max(1, Number(heightInput.value) || 1); gridValue.textContent = `${Math.round(width * count)} × ${Math.round(height * count)}`; sizeNote.textContent = `${count}ct 기준 · ${width} × ${height} inch`; drawPattern(); }
+  function drawPattern() { const colors = Number(colorRange.value); const cell = 28; const palette = ['#d27669', '#77a69b', '#e2bf6c', '#687fa1', '#c790ad', '#50625f', '#e5d6bb', '#b85d55']; ctx.clearRect(0, 0, 560, 560); ctx.fillStyle = '#fbf8ed'; ctx.fillRect(0, 0, 560, 560); for (let y = 0; y < 20; y += 1) for (let x = 0; x < 20; x += 1) { const band = Math.floor((x * 3 + y * 5 + Math.abs(x - 10) + Math.abs(y - 10)) / 7); ctx.fillStyle = palette[band % Math.min(palette.length, Math.max(3, Math.round(colors / 7)))]; ctx.fillRect(x * cell, y * cell, cell, cell); } ctx.strokeStyle = 'rgba(34,53,55,.24)'; ctx.lineWidth = 1; for (let i = 0; i <= 560; i += cell) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 560); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(560, i); ctx.stroke(); } ctx.strokeStyle = 'rgba(29,41,49,.5)'; ctx.lineWidth = 2; for (let i = 0; i <= 560; i += cell * 5) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 560); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(560, i); ctx.stroke(); } $('.canvas-label').textContent = `${colors} COLORS · ${gridValue.textContent}`; }
+  function selectPreview(type) { document.querySelectorAll('.tab').forEach((button) => { const selected = button.dataset.preview === type; button.classList.toggle('active', selected); button.setAttribute('aria-selected', String(selected)); }); ['photo', 'pattern', 'sim'].forEach((name) => $(`#${name}Preview`).classList.toggle('hidden', name !== type)); }
+  colorRange.addEventListener('input', () => { colorValue.textContent = `${colorRange.value}색`; drawPattern(); });
+  [fabricCount, widthInput, heightInput].forEach((element) => element.addEventListener('input', updateSize));
+  document.querySelectorAll('.tab').forEach((button) => button.addEventListener('click', () => selectPreview(button.dataset.preview)));
+  photoInput.addEventListener('change', () => { const file = photoInput.files[0]; if (!file) return; fileName.textContent = file.name; if (imageUrl) URL.revokeObjectURL(imageUrl); imageUrl = URL.createObjectURL(file); const image = new Image(); image.alt = '선택한 사진 미리보기'; image.className = 'uploaded-photo'; image.src = imageUrl; image.onload = () => { const caption = document.createElement('span'); caption.textContent = '선택한 사진 미리보기'; photoPreview.replaceChildren(image, caption); }; });
+  $('#generateBtn').addEventListener('click', () => { drawPattern(); selectPreview('pattern'); $('#previewStatus').textContent = '생성된 도안 미리보기'; });
+  document.querySelectorAll('[data-checkout]').forEach((button) => button.addEventListener('click', (event) => { if (button.getAttribute('href') === '#') event.preventDefault(); }));
+  fetch('./data/checkout.json').then((response) => response.ok ? response.json() : {}).then((data) => { document.querySelectorAll('[data-checkout]').forEach((button) => { const url = button.dataset.checkout === 'studio' ? data.studio_url : data.tool_url; if (typeof url === 'string' && url.trim()) { button.href = url; button.target = '_blank'; button.rel = 'noreferrer'; } }); if (data.tool_url) $('[data-checkout="tool"] + .checkout-hint').textContent = '안전한 결제 페이지로 이동합니다.'; }).catch(() => {});
+  updateSize();
+})();
