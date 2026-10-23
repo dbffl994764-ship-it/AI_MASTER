@@ -1,0 +1,11 @@
+{
+  "name": "별빛도사 · K-SAJU",
+  "short_name": "별빛도사",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#171329",
+  "theme_color": "#171329",
+  "lang": "ko",
+  "description": "오리지널 애니메이션 도사와 대화하는 K-사주 콘텐츠 앱",
+  "icons": []
+}
