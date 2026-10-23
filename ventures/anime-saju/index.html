@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#171329" />
+    <meta name="description" content="오리지널 애니메이션 도사와 대화하는 K-사주 콘텐츠 앱" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>별빛도사 · K-SAJU</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <button class="brand" data-action="home" aria-label="처음으로">
+          <span class="brand-mark">✦</span>
+          <span>별빛도사</span>
+        </button>
+        <div class="topbar-actions">
+          <span class="free-count" id="free-count"></span>
+          <button class="language-button" id="language-button" data-action="toggle-locale" aria-label="언어 변경">EN</button>
+        </div>
+      </header>
+
+      <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+      <section class="screen is-active" data-screen="intro">
+        <div class="hero-copy">
+          <p class="eyebrow" data-i18n="intro.eyebrow">K-SAJU · ORIGINAL CHARACTER</p>
+          <h1 data-i18n="intro.title">오늘, 별의 결을<br /><em>살짝 엿볼까요?</em></h1>
+          <p class="lede" data-i18n="intro.description">오리지널 도사와 나누는 짧고 다정한 사주 대화. 미래를 단정하기보다, 지금의 나를 바라보는 힌트를 건네요.</p>
+        </div>
+        <div class="character-stage" data-character-state="greeting" aria-label="오리지널 도사 캐릭터">
+          <div class="moon-orbit orbit-one"></div><div class="moon-orbit orbit-two"></div>
+          <div class="effect-layer" aria-hidden="true"></div>
+          <div class="character-mount" data-character-state="greeting"></div>
+          <div class="speech-bubble" id="intro-bubble" data-i18n="intro.bubble">어서 와요. 오늘의 마음을 들려줘요.</div>
+        </div>
+        <div class="button-stack">
+          <button class="button button-primary" data-action="start" data-i18n="intro.start">내 사주 이야기 시작하기</button>
+          <p class="microcopy" data-i18n="intro.note">가입 없이 시작 · 입력 정보는 이 기기에만 저장</p>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="profile">
+        <div class="section-heading"><p class="eyebrow" data-i18n="profile.eyebrow">01 · 나를 알려주세요</p><h2 data-i18n="profile.title">별빛을 읽기 위한<br />간단한 정보예요.</h2></div>
+        <form id="profile-form" class="form-card">
+          <label><span data-i18n="profile.birthDate">생년월일</span><input required id="birth-date" type="date" /></label>
+          <label><span data-i18n="profile.birthTime">태어난 시간 <small data-i18n="profile.optional">선택</small></span><input id="birth-time" type="time" /></label>
+          <label><span data-i18n="country">출생 국가</span><select id="birth-country" required><option value="KR">대한민국</option><option value="JP">日本</option><option value="US">United States</option><option value="GB">United Kingdom</option><option value="AU">Australia</option><option value="CA">Canada</option></select></label>
+          <label><span data-i18n="profile.city">출생 도시</span><select required id="birth-city"></select></label>
+          <p class="helper" data-i18n="profile.helper">도시의 시간대·경도를 계산에 반영합니다. 날짜는 양력 기준입니다.</p>
+          <p class="error-note" id="profile-error" role="alert"></p><button class="button button-primary" type="submit" data-i18n="profile.next">다음 · 주제 고르기</button>
+        </form>
+      </section>
+
+      <section class="screen" data-screen="topic">
+        <div class="section-heading"><p class="eyebrow" data-i18n="topic.eyebrow">02 · 오늘의 주제</p><h2 data-i18n="topic.title">무엇이 가장<br />궁금한가요?</h2></div>
+        <div class="topic-grid" id="topic-grid"></div>
+        <button class="text-button" data-action="back" data-i18n="common.back">← 이전</button>
+      </section>
+
+      <section class="screen" data-screen="question">
+        <div class="section-heading"><p class="eyebrow" id="question-topic-label">03 · 질문</p><h2 data-i18n="question.title">마음에 닿는 질문을<br />골라보세요.</h2></div>
+        <div class="question-list" id="question-list" aria-label="추천 질문"></div>
+        <div class="divider-label"><span data-i18n="question.or">또는 직접 물어보기</span></div>
+        <form class="ask-form" id="ask-form"><label class="sr-only" for="custom-question" data-i18n="question.label">직접 질문</label><textarea id="custom-question" maxlength="120" aria-describedby="question-helper question-error" data-i18n-placeholder="question.placeholder" placeholder="예: 새로운 인연을 만날 때 어떤 점을 보면 좋을까요?"></textarea><p class="helper question-helper" id="question-helper" data-i18n="question.helper">최대 120자 · 의료·법률·투자 판단은 제공하지 않아요.</p><p class="error-note" id="question-error" role="alert" aria-live="polite"></p><button class="button button-secondary" type="submit" data-i18n="question.ask">이 질문으로 보기</button></form>
+        <button class="text-button" data-action="back" data-i18n="common.back">← 주제 다시 고르기</button>
+      </section>
+
+      <section class="screen" data-screen="conversation">
+        <div class="conversation-heading"><span class="status-dot"></span><span data-i18n="conversation.status">도사가 별빛을 살피는 중</span></div>
+        <div class="character-stage compact"><div class="effect-layer" aria-hidden="true"></div><div class="character-mount" data-character-state="thinking"></div></div>
+        <div class="conversation-lines" id="conversation-lines" aria-live="polite"></div>
+        <div class="thinking-bar"><span></span></div>
+      </section>
+
+      <section class="screen" data-screen="result">
+        <div class="section-heading result-heading"><p class="eyebrow" data-i18n="result.eyebrow">오늘의 별빛 기록</p><h2 data-i18n="result.title">당신에게 도착한<br />작은 힌트예요.</h2></div>
+        <div class="result-card" id="result-card"></div>
+        <p class="disclaimer" id="disclaimer" data-i18n="safety.disclaimer">본 서비스의 사주 해석은 오락과 자기성찰을 위한 참고용 콘텐츠입니다. 의학·법률·투자·재정·안전 관련 판단을 대신하지 않습니다.</p>
+        <div class="result-actions"><button class="button button-primary" id="save-result" data-action="save-result" data-i18n="result.save">이 결과 저장</button><button class="button button-secondary" id="copy-result" data-action="copy-result" data-i18n="result.copy">공유 문구 복사</button><button class="button button-ghost" data-action="new-question" data-i18n="result.newQuestion">다른 질문 보기</button><button class="button button-ghost" data-action="home" data-i18n="result.home">처음으로</button></div>
+      </section>
+
+      <footer class="app-footer"><span>v0.1 · local prototype</span><span data-i18n="footer.check">엔진·에셋·결제는 확인 필요</span></footer>
+    </main>
+    <p class="error-note app-error" id="app-error" role="alert" hidden>답변 라이브러리를 불러오지 못했습니다. 정적 서버에서 다시 열어 주세요.</p>
+    <script src="./js/character.js" defer></script>
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
